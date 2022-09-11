@@ -1,0 +1,163 @@
+
+postgres=# \c exercise
+psql (14.5 (Ubuntu 14.5-1.pgdg20.04+1), server 12.12 (Ubuntu 12.12-0ubuntu0.20.04.1))
+You are now connected to database "exercise" as user "postgres".
+exercise=# \dn
+   List of schemas
+   Name   |  Owner
+----------+----------
+ exercise | postgres
+ public   | postgres
+(2 rows)
+
+exercise=# set search_path to exercise;
+SET
+exercise=# create table facultyDetails (faculty_id char(20) primary key, Title char(7) not null,faculty_name char(30) not null,faculty_location char(30) not null,Faculty_track char(15) not null,Faculty_qulification char(100) not null,faculty_exprience integer not null, faculty_email char(100)not null,faculty_password char(20) not null);
+CREATE TABLE
+exercise=# \d facultydetails
+                    Table "exercise.facultydetails"
+        Column        |      Type      | Collation | Nullable | Default
+----------------------+----------------+-----------+----------+---------
+ faculty_id           | character(20)  |           | not null |
+ title                | character(7)   |           | not null |
+ faculty_name         | character(30)  |           | not null |
+ faculty_location     | character(30)  |           | not null |
+ faculty_track        | character(15)  |           | not null |
+ faculty_qulification | character(100) |           | not null |
+ faculty_exprience    | integer        |           | not null |
+ faculty_email        | character(100) |           | not null |
+ faculty_password     | character(20)  |           | not null |
+Indexes:
+    "facultydetails_pkey" PRIMARY KEY, btree (faculty_id)
+Referenced by:
+    TABLE "faculty_feedback" CONSTRAINT "faculty_feedback_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES facultydetails(faculty_id)
+
+exercise=# create table student_Details (student_id char(20) primary key, Title char(7) not null,student_name char(30) not null,student_location char(30) not null,student_track char(15) not null,student_qulification char(200) not null,student_email char(100)not null,student_password char(20) not null);
+CREATE TABLE
+exercise=# \d student_details
+                    Table "exercise.student_details"
+        Column        |      Type      | Collation | Nullable | Default
+----------------------+----------------+-----------+----------+---------
+ student_id           | character(20)  |           | not null |
+ title                | character(7)   |           | not null |
+ student_name         | character(30)  |           | not null |
+ student_location     | character(30)  |           | not null |
+ student_track        | character(15)  |           | not null |
+ student_qulification | character(200) |           | not null |
+ student_email        | character(100) |           | not null |
+ student_password     | character(20)  |           | not null |
+Indexes:
+    "student_details_pkey" PRIMARY KEY, btree (student_id)
+
+exercise=# create table module_details(module_id char(20) primary key,module_name char(40) not null,module_duration integer not null);
+CREATE TABLE
+exercise=# \d module_details
+                 Table "exercise.module_details"
+     Column      |     Type      | Collation | Nullable | Default
+-----------------+---------------+-----------+----------+---------
+ module_id       | character(20) |           | not null |
+ module_name     | character(40) |           | not null |
+ module_duration | integer       |           | not null |
+Indexes:
+    "module_details_pkey" PRIMARY KEY, btree (module_id)
+exercise=# create table batch_details(batch_id char(20) primary key,batch_faculty char(30) not null,batch_dept_name char(30) not null);
+CREATE TABLE
+exercise=# \d batch_details
+                  Table "exercise.batch_details"
+     Column      |     Type      | Collation | Nullable | Default
+-----------------+---------------+-----------+----------+---------
+ batch_id        | character(20) |           | not null |
+ batch_faculty   | character(30) |           | not null |
+ batch_dept_name | character(30) |           | not null |
+Indexes:
+    "batch_details_pkey" PRIMARY KEY, btree (batch_id)
+
+exercise=# create table questions(question_id char(20) primary key,module_id char(20) references module_details(module_id) not null,question_text char(900) not null);
+CREATE TABLE
+exercise=# \d questions
+                   Table "exercise.questions"
+    Column     |      Type      | Collation | Nullable | Default
+---------------+----------------+-----------+----------+---------
+ question_id   | character(20)  |           | not null |
+ module_id     | character(20)  |           | not null |
+ question_text | character(900) |           | not null |
+Indexes:
+    "questions_pkey" PRIMARY KEY, btree (question_id)
+Foreign-key constraints:
+    "questions_module_id_fkey" FOREIGN KEY (module_id) REFERENCES module_details(module_id)
+
+exercise=# create table student_status(student_id char(20) references student_details(student_id) not null,module_id char(20) references module_details(module_id) not null,start_date char(20) not null, end_date char(20) not null,AFeedbackGiven char(20) not null,TFeedbackGiven char(20) not null);
+CREATE TABLE
+exercise=# \d student_status;
+                 Table "exercise.student_status"
+     Column     |     Type      | Collation | Nullable | Default
+----------------+---------------+-----------+----------+---------
+ student_id     | character(20) |           | not null |
+ module_id      | character(20) |           | not null |
+ start_date     | character(20) |           | not null |
+ end_date       | character(20) |           | not null |
+ afeedbackgiven | character(20) |           | not null |
+ tfeedbackgiven | character(20) |           | not null |
+Foreign-key constraints:
+    "student_status_module_id_fkey" FOREIGN KEY (module_id) REFERENCES module_details(module_id)
+    "student_status_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student_details(student_id)
+
+exercise=# create table faculty_feedback(faculty_id char(20) references facultydetails(faculty_id) not null,question_id char(20) references questions(question_id) not null,batch_id char(20) references batch_details(batch_id) not null, module_id char(20) references module_details(module_id)not null,faculty_rating integer not null);
+CREATE TABLE
+exercise=# \d faculty_feedback
+                Table "exercise.faculty_feedback"
+     Column     |     Type      | Collation | Nullable | Default
+----------------+---------------+-----------+----------+---------
+ faculty_id     | character(20) |           | not null |
+ question_id    | character(20) |           | not null |
+ batch_id       | character(20) |           | not null |
+ module_id      | character(20) |           | not null |
+ faculty_rating | integer       |           | not null |
+Foreign-key constraints:
+    "faculty_feedback_batch_id_fkey" FOREIGN KEY (batch_id) REFERENCES batch_details(batch_id)
+    "faculty_feedback_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES facultydetails(faculty_id)
+    "faculty_feedback_module_id_fkey" FOREIGN KEY (module_id) REFERENCES module_details(module_id)
+    "faculty_feedback_question_id_fkey" FOREIGN KEY (question_id) REFERENCES questions(question_id)
+
+exercise=# create table student_feedback(student_id char(20) references student_details(student_id) not null,question_id char(20) references questions(question_id) not null,module_id char(20) references module_details(module_id) not null,student_rating integer not null);
+CREATE TABLE
+exercise=# \d student_feedback
+                Table "exercise.student_feedback"
+     Column     |     Type      | Collation | Nullable | Default
+----------------+---------------+-----------+----------+---------
+ student_id     | character(20) |           | not null |
+ question_id    | character(20) |           | not null |
+ module_id      | character(20) |           | not null |
+ student_rating | integer       |           | not null |
+Foreign-key constraints:
+    "student_feedback_module_id_fkey" FOREIGN KEY (module_id) REFERENCES module_details(module_id)
+    "student_feedback_question_id_fkey" FOREIGN KEY (question_id) REFERENCES questions(question_id)
+    "student_feedback_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student_details(student_id)
+
+exercise=# create table login_details (user_id char(20) primary key,user_password char(20) not null);
+CREATE TABLE
+exercise=# \d login_details
+                 Table "exercise.login_details"
+    Column     |     Type      | Collation | Nullable | Default
+---------------+---------------+-----------+----------+---------
+ user_id       | character(20) |           | not null |
+ user_password | character(20) |           | not null |
+Indexes:
+    "login_details_pkey" PRIMARY KEY, btree (user_id)
+
+exercise=# \dt
+               List of relations
+  Schema  |       Name       | Type  |  Owner
+----------+------------------+-------+----------
+ exercise | batch_details    | table | postgres
+ exercise | faculty_feedback | table | postgres
+ exercise | facultydetails   | table | postgres
+ exercise | login_details    | table | postgres
+ exercise | module_details   | table | postgres
+ exercise | questions        | table | postgres
+ exercise | student_details  | table | postgres
+ exercise | student_feedback | table | postgres
+ exercise | student_status   | table | postgres
+(9 rows)
+
+exercise=#
